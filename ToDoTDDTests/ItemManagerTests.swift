@@ -43,7 +43,7 @@ class ItemManagerTests: XCTestCase {
 
         let returnedItem = manager.item(at: 0)
 
-        XCTAssertEqual(returnedItem.title, item.title)
+        XCTAssertEqual(returnedItem, item)
     }
 
     func testCheckItemAtChangesCount() {
@@ -57,6 +57,18 @@ class ItemManagerTests: XCTestCase {
                        "Checking item should increase done count by one")
     }
 
+    func testUncheckItemAtChangesCount() {
+        manager.add(ToDoItem(title: ""))
+
+        manager.checkItem(at: 0)
+        manager.uncheckItem(at: 0)
+
+        XCTAssertEqual(manager.toDoCount, 1,
+                       "Unchecking item should add it back to todos")
+        XCTAssertEqual(manager.doneCount, 0,
+                       "Unchecking item should remove it from todos")
+    }
+
     func testCheckItemRemovesItFromToDoItems() {
         let first = ToDoItem(title: "First")
         let second = ToDoItem(title: "Second")
@@ -66,7 +78,23 @@ class ItemManagerTests: XCTestCase {
 
         manager.checkItem(at: 0)
 
-        XCTAssertEqual(manager.item(at: 0).title, second.title,
+        XCTAssertEqual(manager.item(at: 0), second,
+                       "Checking item at first index should remove item at first index")
+    }
+
+    func testUncheckItemRemovesitFromDoneItems() {
+        let first = ToDoItem(title: "First")
+        let second = ToDoItem(title: "Second")
+
+        manager.add(first)
+        manager.add(second)
+
+        manager.checkItem(at: 0)
+        manager.checkItem(at: 0)
+
+        manager.uncheckItem(at: 0)
+
+        XCTAssertEqual(manager.doneItem(at: 0), second,
                        "Checking item at first index should remove item at first index")
     }
 
@@ -78,6 +106,27 @@ class ItemManagerTests: XCTestCase {
 
         let returnedItem = manager.doneItem(at: 0)
 
-        XCTAssertEqual(returnedItem.title, item.title)
+        XCTAssertEqual(returnedItem, item)
+    }
+
+    func testRemoveAllResults() {
+        manager.add(ToDoItem(title: "Foo"))
+        manager.add(ToDoItem(title: "Bar"))
+        manager.checkItem(at: 0)
+
+        XCTAssertEqual(manager.toDoCount, 1)
+        XCTAssertEqual(manager.doneCount, 1)
+
+        manager.removeAll()
+
+        XCTAssertEqual(manager.toDoCount, 0)
+        XCTAssertEqual(manager.doneCount, 0)
+    }
+
+    func testDoesNotAddDuplicateItem() {
+        manager.add(ToDoItem(title: "Foo"))
+        manager.add(ToDoItem(title: "Foo"))
+
+        XCTAssertEqual(manager.toDoCount, 1)
     }
 }
